@@ -3,8 +3,9 @@ sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/model/Filter",
 	"sap/ui/model/FilterOperator",
-	"sap/ui/model/json/JSONModel"
-], (Device, Controller, Filter, FilterOperator, JSONModel) => {
+	"sap/ui/model/json/JSONModel",
+	"sap/m/MessageToast"
+], (Device, Controller, Filter, FilterOperator, JSONModel, MessageToast) => {
 	"use strict";
 
 	return Controller.extend("sap.ui.demo.todo.controller.App", {
@@ -24,17 +25,53 @@ sap.ui.define([
 		 */
 		addTodo() {
 			const oModel = this.getView().getModel();
-			const aTodos = oModel.getProperty("/todos").map((oTodo) => Object.assign({}, oTodo));
+			const aTodos = oModel.getProperty("/todos").map((oTodo) => Object.assign({}, oTodo));			
+			const currentDate = new Date();
+			const userDate = this._transformToEuDate(oModel.getProperty("/newDate"))
+
+			// Tag und Titel seprieren
+			const sTag = oModel.getProperty("/newTodo").split(" ").pop();
+			const sTitle = oModel.getProperty("/newTodo").split("#").shift()
+		
+			console.log("test")
+			console.log(oModel.getProperty("/newDate"))
+			console.log(currentDate.getTime())
 
 			aTodos.push({
-				title: oModel.getProperty("/newTodo"),
-				completed: false
+				title: sTitle,				
+				completed: false,
+				date: oModel.getProperty("/newDate"),
+				overdue: userDate.getTime() < currentDate.getTime(),
+				tag: this._verifyTag(sTag)
 			});
 
 			oModel.setProperty("/todos", aTodos);
 			oModel.setProperty("/newTodo", "");
+			oModel.setProperty("/newDate", "");
 		},
+		_verifyTag(sTag) { 
+			const lowerCaseTag = sTag.toLowerCase();
+			const firstTagLetter = lowerCaseTag.split("").shift()
+			let sResult = lowerCaseTag.substring(1);
 
+			if(firstTagLetter === "#") {
+				sResult = sResult.charAt(0).toUpperCase() + sResult.substring(1)
+			} else {
+				sResult = "Allgemeines"
+			}
+
+			return sResult
+		},
+		_transformToEuDate(date){ // MM.DD.YYYY -> DD.MM.YYYY
+			const aDate = date.split(".")
+			const sDay = aDate[1]
+			const sMonth = aDate[0]
+			const sYear = aDate[2]
+			
+			let dResult = new Date(sDay + "." + sMonth + "."  +sYear + "." )
+			
+			return dResult;
+		},
 		/**
 		 * Removes all completed items from the todo list.
 		 */
@@ -103,9 +140,12 @@ sap.ui.define([
 				case "completed":
 					this.aTabFilters.push(new Filter("completed", FilterOperator.EQ, true));
 					break;
+				case "overdue":
+					this.aTabFilters.push(new Filter("overdue", FilterOperator.EQ, true));
+					break;
 				case "all":
 				default:
-					// Don't use any filter
+				// Don't use any filter
 			}
 
 			this._applyListFilters();
@@ -121,9 +161,11 @@ sap.ui.define([
 			if (this.sFilterKey && this.sFilterKey !== "all") {
 				if (this.sFilterKey === "active") {
 					sI18nKey = "ACTIVE_ITEMS";
-				} else {
+				} else if (this.sFilterKey === "completed") {
 					// completed items: sFilterKey = "completed"
 					sI18nKey = "COMPLETED_ITEMS";
+				} else {
+					sI18nKey = "OVERDUE_ITEMS";
 				}
 				if (this.sSearchQuery) {
 					sI18nKey += "_CONTAINING";
@@ -140,7 +182,75 @@ sap.ui.define([
 
 			this.getView().getModel("view").setProperty("/filterText", sFilterText);
 		},
+		_movePrio(oEvent, sDirection) {
+			const oModel = this.getView().getModel();
 
+			// Finde das geklickte Element
+			const oClickedButton = oEvent.getSource();
+			const bId = oClickedButton.getId();
+
+			// Erhalte den Pfad des gebundenen Elements (z.B. "/todos/0") & extrahiere es
+			const sBindingPath = oClickedButton.getBindingContext().getPath();
+			const nIndex = parseInt(sBindingPath.split("/")[2]);
+
+			// Ermittle aktuelles Array Item sowie die Item davor & danach
+			const getItemBefore = oModel.oData.todos[nIndex - 1];
+			const getClickedItem = oModel.oData.todos[nIndex]
+			const getItemAfter = oModel.oData.todos[nIndex + 1];
+
+
+			// Swap Arrays
+			if (sDirection === "prioUp") {
+				// Abfangen wenn Item bereits an erster Stelle steht
+				if (nIndex > 0) {
+					oModel.oData.todos[nIndex - 1] = getClickedItem;
+					oModel.oData.todos[nIndex] = getItemBefore;
+
+					MessageToast.show("Prio Up")
+				}
+			} else if (sDirection === "prioDown") {
+				// Abfangen wenn Item bereits an letzter Stelle steht
+				if (oModel.getProperty("/todos").length > nIndex + 1) {
+					oModel.oData.todos[nIndex + 1] = getClickedItem;
+					oModel.oData.todos[nIndex] = getItemAfter;
+
+					MessageToast.show("Prio Down")
+				}
+			}
+			
+			oModel.refresh();
+		},
+		movePrioUp(oEvent) {
+			this._movePrio(oEvent, "prioUp")
+		},
+		movePrioDown(oEvent) {
+			this._movePrio(oEvent, "prioDown")
+		}
+		/*
+		movePrioDown(oEvent) {
+			
+			const oModel = this.getView().getModel();
+
+			// Finde das geklickte Element
+			const oClickedButton = oEvent.getSource();
+
+			// Erhalte den Pfad des gebundenen Elements (z.B. "/todos/0")
+			const sBindingPath = oClickedButton.getBindingContext().getPath();
+			// Extrahiere den Index aus dem Pfad
+			const nIndex = parseInt(sBindingPath.split("/")[2]);
+
+			if (oModel.getProperty("/todos").length > nIndex + 1) {
+				const getItemBefore = oModel.oData.todos[nIndex + 1];
+				const getClickedItem = oModel.oData.todos[nIndex]
+
+				oModel.oData.todos[nIndex + 1] = getClickedItem;
+				oModel.oData.todos[nIndex] = getItemBefore;
+			}
+
+			oModel.refresh();
+			
+		}
+		*/
 	});
 
 });
