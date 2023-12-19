@@ -21,7 +21,7 @@ module.exports = function(config) {
 				flags: chromeFlags
 			},
 			CustomChromeHeadless: {
-				base: "ChromeHeadless",
+				base: "Chrome", //ChromeHeadless
 				flags: chromeFlags
 			}
 		},
