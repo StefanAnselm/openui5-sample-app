@@ -1,12 +1,40 @@
 {
 	"newTodo": "",
+	"newDate": "",
 	"todos": [{
 			"title": "Start this app",
-			"completed": true
+			"completed": true,
+			"date": "31.12.2023",
+			"overdue": false,
+			"tag": "Allgemeines" 
 		},
 		{
 			"title": "Learn OpenUI5",
-			"completed": false
+			"completed": false,
+			"date": "30.12.2023",
+			"overdue": false,
+			"tag": "Allgemeines" 
+		},
+		{
+			"title": "test Entry",
+			"completed": false,
+			"date": "29.12.2023",
+			"overdue": false,
+			"tag": "Test" 
+		},
+		{
+			"title": "Overdue Funktion",
+			"completed": false,
+			"date": "28.12.2023",
+			"overdue": true,
+			"tag": "Test" 
+		},
+		{
+			"title": "Checkbox testen",
+			"completed": false,
+			"date": "27.12.2023",
+			"overdue": false,
+			"tag": "Test" 
 		}
 	],
 	"itemsRemovable": true,
