@@ -17,7 +17,7 @@ sap.ui.define([
 		When.onTheAppPage.iEnterTextForNewItemAndPressEnter("my test");
 
 		// Assertions
-		Then.onTheAppPage.iShouldSeeTheItemBeingAdded(3, "my test");
+		Then.onTheAppPage.iShouldSeeTheItemBeingAdded(3, "MY TEST");
 
 		// Cleanup
 		Then.iTeardownMyApp();
@@ -35,7 +35,7 @@ sap.ui.define([
 			.and.iEnterTextForNewItemAndPressEnter("my test");
 
 		// Assertions
-		Then.onTheAppPage.iShouldSeeAllButOneItemBeingRemoved("my test");
+		Then.onTheAppPage.iShouldSeeAllButOneItemBeingRemoved("MY TEST");
 
 		// Cleanup
 		Then.iTeardownMyApp();
@@ -72,6 +72,22 @@ sap.ui.define([
 
 		// Assertions
 		Then.onTheAppPage.iShouldSeeTheLastItemBeingCompleted(false);
+
+		// Cleanup
+		Then.iTeardownMyApp();
+	});
+	
+	opaTest("should complete all items", (Given, When, Then) => {
+
+		// Arrangements
+		Given.iStartMyApp();
+
+		//Actions
+		When.onTheAppPage.iEnterTextForNewItemAndPressEnter("my test2")
+			.and.iCompleteAllItems()
+
+		// Assertions
+		Then.onTheAppPage.iShouldSeeAllItemsCompleted(true);
 
 		// Cleanup
 		Then.iTeardownMyApp();

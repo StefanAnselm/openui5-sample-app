@@ -31,6 +31,7 @@
 												<SegmentedButtonItem text="{i18n>LABEL_COMPLETED}" key="completed"/>
 											</items>
 										</SegmentedButton>
+										<Button id="setAllCompleted"  text="{i18n>SET_ALL_COMPLETED}" press=".setAllCompleted"/>
 										<Button id="clearCompleted" enabled="{/itemsRemovable}" icon="sap-icon://delete" text="{i18n>CLEAR_COMPLETED}" press=".clearCompleted"/>
 									</OverflowToolbar>
 								</headerToolbar>
