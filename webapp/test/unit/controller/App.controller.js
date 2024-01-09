@@ -99,7 +99,7 @@ sap.ui.define([
 
 	// function removeMultipleSpaces
 	QUnit.test("Should remove multiple spaces and trim", (assert) => {
-		// Arrange
+		// Arrange 
 		// initial assumption: to-do list is empty
 		//assert.strictEqual(oJSONModelStub.getObject("/todos").length, 0, "There must be no todos defined.");
 
