@@ -25,9 +25,9 @@ sap.ui.define([
 		addTodo() {
 			const oModel = this.getView().getModel();
 			const aTodos = oModel.getProperty("/todos").map((oTodo) => Object.assign({}, oTodo));
-
+			
 			aTodos.push({
-				title: oModel.getProperty("/newTodo"),
+				title: this.removeMultipleSpaces(oModel.getProperty("/newTodo").toUpperCase()),
 				completed: false
 			});
 
@@ -140,6 +140,25 @@ sap.ui.define([
 
 			this.getView().getModel("view").setProperty("/filterText", sFilterText);
 		},
+		setAllCompleted(){
+			const oModel = this.getView().getModel()
+			const aTodos = oModel.getProperty("/todos")
+			aTodos.forEach((item) => {
+				item.completed = true
+			})
+
+			oModel.setProperty("/todos", aTodos)
+		},
+		removeMultipleSpaces(stodoTitle){
+			const rFindMultipleySpaces = /\s+/g
+			if (!stodoTitle){
+				stodoTitle = ""
+			}
+						
+			const result = stodoTitle.trim().replace(rFindMultipleySpaces, ' ')
+
+			return result
+		}
 
 	});
 

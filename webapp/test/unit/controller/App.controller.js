@@ -81,6 +81,38 @@ sap.ui.define([
 		assert.strictEqual(oJSONModelStub.getObject("/todos").length, 2, "There are couple items in ToDo list.");
 	});
 
+	// function setAllCompleted
+	QUnit.test("Should change the property of all elements to true", (assert) => {
+		// Arrange
+		// initial assumption: to-do list is empty
+		assert.strictEqual(oJSONModelStub.getObject("/todos").length, 0, "There must be no todos defined.");
+
+		// Act
+		oJSONModelStub.setProperty("/todos", [{title: "Completed item", completed: false},{title: "Completed item 2", completed: false}]);
+		oAppController.setAllCompleted();
+
+		const resultArray = [{title: "Completed item", completed: true},{title: "Completed item 2", completed: true}];
+		
+		// Assumption
+		assert.deepEqual(oJSONModelStub.getObject("/todos"), resultArray , "All elements are completed now.");
+	});
+
+	// function removeMultipleSpaces
+	QUnit.test("Should remove multiple spaces and trim", (assert) => {
+		// Arrange 
+		// initial assumption: to-do list is empty
+		//assert.strictEqual(oJSONModelStub.getObject("/todos").length, 0, "There must be no todos defined.");
+
+		// Act
+		//oJSONModelStub.setProperty("/todos", [{title: "    Completed       item    trim   ", completed: false}]);
+		const result = oAppController.removeMultipleSpaces("    Completed       item    trim   ");
+		const result2 = oAppController.removeMultipleSpaces()
+
+		// Assumption
+		assert.strictEqual(result, "Completed item trim", "Title got trimmed.");
+		assert.strictEqual(result2, "", "Title got trimmed.");
+	});
+
 	QUnit.test("Should toggle the completed items in the model", (assert) => {
 		// Arrange
 		const oModelData = {

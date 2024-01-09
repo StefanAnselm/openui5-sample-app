@@ -15,6 +15,7 @@ sap.ui.require([
 	const sItemListId = "todoList";
 	const sToolbarId = Device.browser.mobile ? "toolbar-footer" : "toolbar";
 	const sClearCompletedId = Device.browser.mobile ? "clearCompleted-footer" : "clearCompleted";
+	const iSetAllCompleted = "setAllCompleted";
 
 	Opa5.createPageObjects({
 		onTheAppPage: {
@@ -81,6 +82,16 @@ sap.ui.require([
 						viewName: sViewName,
 						actions: [new Press()],
 						errorMessage: "checkbox cannot be pressed"
+					});
+				},
+				// Complete all Button
+				iCompleteAllItems() {
+					this._waitForToolbar();
+					return this.waitFor({
+						id: iSetAllCompleted,
+						viewName: sViewName,
+						actions: [new Press()],
+						errorMessage: "Set all Completed button cannot be pressed"
 					});
 				},
 				iFilterForItems(filterKey) {
@@ -190,7 +201,26 @@ sap.ui.require([
 						},
 						errorMessage: "List does not have expected number of items '" + iItemCount + "'."
 					});
-				}
+				},				
+				iShouldSeeAllItemsCompleted() {
+					return this.waitFor({
+						id: sItemListId,
+						viewName: sViewName,
+						matchers: [(oControl) => {
+							const oItems = oControl.getItems();
+							const bResult = oItems.every((oItem) => {
+								const bCompleted = oItem.getBindingContext().getProperty("completed");
+
+								return bCompleted;
+							});
+							return bResult;
+						}],
+						success() {
+							Opa5.assert.ok(true, "All items are marked as completed");
+						},
+						errorMessage: "Did not completed all Items."
+					});
+				}				
 			}
 
 		}
